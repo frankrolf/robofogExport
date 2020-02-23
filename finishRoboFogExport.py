@@ -1,17 +1,14 @@
 # finish the export from RoboFog.
 
-from fontParts.world import RFont
-import sys
 import os
+import sys
+from fontParts.world import RFont
 
 
 """
 
     put the background glyphs in the right place
     clean up stray points
-
-    (to do)
-    XXX clear .finf folders
 
 """
 
@@ -107,8 +104,14 @@ for ufo_file in sorted(ufo_files):
 
     new_f.newLayer('background')
     cleanupBackground(new_f)
-    new_f.glyphOrder = old_f.glyphOrder
+    glyph_order = list(old_f.glyphOrder[:256])
+    for gname in old_f.glyphOrder[256:]:
+        if gname in new_f.keys():
+            glyph_order.append(gname)
+    new_f.glyphOrder = glyph_order
+
     new_f.save(new_ufo_path)
     old_f.close()
     print(f'done\n')
+
 print('all done')
