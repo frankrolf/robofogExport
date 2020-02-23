@@ -2,6 +2,7 @@
 
 import os
 import sys
+import shutil
 from fontParts.world import RFont
 
 
@@ -71,14 +72,14 @@ for root, folders, files in os.walk(input_folder):
     if ufos:
         ufo_files.extend([os.path.join(root, ufo) for ufo in ufos])
 
-for ufo_file in sorted(ufo_files):
-    directory, file_name = os.path.split(ufo_file)
+for ufo_path in sorted(ufo_files):
+    directory, file_name = os.path.split(ufo_path)
     file_stem, file_suffix = os.path.splitext(file_name)
     underline = '*' * len(file_stem)
     print(f'{file_stem}\n{underline}')
     new_ufo_name = f'{file_stem}_UFO3{file_suffix}'
     new_ufo_path = os.path.join(directory, new_ufo_name)
-    old_f = RFont(ufo_file)
+    old_f = RFont(ufo_path)
     new_f = RFont()
 
     for key, value in asDict(old_f.info).items():
@@ -99,7 +100,7 @@ for ufo_file in sorted(ufo_files):
             new_glyph = new_f[glyphname]
             # space glyphs may still make it over and need to be cleared.
             if len(glyph.contours) == 1 and len(glyph.contours[0]) == 1:
-                print(f'clearing stray point in {glyphname}')
+                # print(f'clearing stray point in {glyphname}')
                 new_glyph.clear()
 
     new_f.newLayer('background')
@@ -111,7 +112,9 @@ for ufo_file in sorted(ufo_files):
     new_f.glyphOrder = glyph_order
 
     new_f.save(new_ufo_path)
-    old_f.close()
+    # old_f.close()
+    shutil.rmtree(ufo_path)
+    os.rename(new_ufo_path, ufo_path)
     print(f'done\n')
 
 print('all done')
